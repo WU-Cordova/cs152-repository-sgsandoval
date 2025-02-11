@@ -9,8 +9,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 import os
 from typing import Any, Iterator, overload
-import numpy as np
-from numpy.typing import NDArray
+
 
 
 from datastructures.iarray import IArray, T
@@ -19,7 +18,21 @@ from datastructures.iarray import IArray, T
 class Array(IArray[T]):  
 
     def __init__(self, starting_sequence: Sequence[T]=[], data_type: type=object) -> None: 
-        raise NotImplementedError('Constructor not implemented.')
+        self.__logical_size = len(starting_sequence)
+        self.__physical_size = self.__logical_size
+        self.__data_type: type = data_type
+
+        if not isinstance(starting_sequence, Sequence):
+            raise ValueError('starting_sequence must be a valid sequence type')
+        
+        for index in range(self.__logical_size):
+            if not isinstance(starting_sequence[index], self.__data_type):
+                raise TypeError('Items in starting sequence are not all the same type')
+
+        self.__items: NDArray = np.empty(self.__logical_size, dtype=self.__data_type)
+
+        for index in range(self.__logical_size):
+            self.__items[index] = starting_sequence[index]
 
     @overload
     def __getitem__(self, index: int) -> T: ...
