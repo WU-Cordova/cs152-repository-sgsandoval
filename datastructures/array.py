@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 import os
 from typing import Any, Iterator, overload
+import numpy as np
 
 
 
@@ -22,6 +23,11 @@ class Array(IArray[T]):
         self.__physical_size = self.__logical_size
         self.__data_type: type = data_type
 
+        self.__elements = np.empty(self.__logical_size, dtype=self.__data_type)
+
+        for index in range(self.__logical_size):
+            self.__elements[index] = np.copy.deepcopy(starting_sequence)
+
         if not isinstance(starting_sequence, Sequence):
             raise ValueError('starting_sequence must be a valid sequence type')
         
@@ -29,7 +35,7 @@ class Array(IArray[T]):
             if not isinstance(starting_sequence[index], self.__data_type):
                 raise TypeError('Items in starting sequence are not all the same type')
 
-        self.__items: NDArray = np.empty(self.__logical_size, dtype=self.__data_type)
+        self.__items: np.NDArray = np.empty(self.__logical_size, dtype=self.__data_type)
 
         for index in range(self.__logical_size):
             self.__items[index] = starting_sequence[index]
@@ -39,46 +45,111 @@ class Array(IArray[T]):
     @overload
     def __getitem__(self, index: slice) -> Sequence[T]: ...
     def __getitem__(self, index: int | slice) -> T | Sequence[T]:
-            raise NotImplementedError('Indexing not implemented.')
+            
+            if isinstance(index, slice):
+                start = slice.start
+                stop = slice.stop
+                step = slice.step
+
+                return Array(starting_sequence=self.__elements[index])
+            
+            elif isinstance(index, int):
+
+                return self.__elements[index]
+            
+            return self.__elements[index]
     
     def __setitem__(self, index: int, item: T) -> None:
-        raise NotImplementedError('Indexing not implemented.')
+        self.__elements[index] = item
 
     def append(self, data: T) -> None:
-        raise NotImplementedError('Append not implemented.')
+        if self.__logical_size == self.__physical_size:
+            self.__physical_size = max(1, self.__physical_size * 2)
+            new_elements = np.empty(self.__physical_size, dtype = self.__data_type)
+            new_elements[:self.__logical_size] = self.__elements
+            self.__elements = new_elements
+
+        self.__elements[self.__logical_size] = data
+        self.__logical_size += 1
 
     def append_front(self, data: T) -> None:
-        raise NotImplementedError('Append front not implemented.')
+        if self.__logical_size == self.__physical_size:
+            self.__physical_size = max(1, self.__physical_size * 2)
+            new_elements = np.empty(self.__physical_size, dtype=self.__data_type)
+            new_elements[1:self.__logical_size + 1] = self.__elements[:self.__logical_size]
+            self.__elements = new_elements
+        else:
+            self.__elements[1:self.__logical_size + 1] = self.__elements[:self.__logical_size]
+        
+        self.__elements[0] = data
+        self.__logical_size += 1
 
     def pop(self) -> None:
-        raise NotImplementedError('Pop not implemented.')
+        if self.__logical_size == 0:
+            raise IndexError
+
+        self.__logical_size -= 1
+
+        if self.__logical_size > 0 and self.__logical_size <= self.__physical_size // 4:
+            self.__physical_size = self.__physical_size // 2
+            new_elements = np.empty(self.__physical_size, dtype=self.__data_type)
+            new_elements[:self.__logical_size] = self.__elements[:self.__logical_size]
+            self.__elements = new_elements
     
     def pop_front(self) -> None:
-        raise NotImplementedError('Pop front not implemented.')
+        if self.__logical_size == 0:
+            raise IndexError
+        
+        self.__elements[:self.__logical_size - 1] = self.__elements[1:self.__logical_size]
+        self.__logical_size -= 1
+        
+        if self.__logical_size > 0 and self.__logical_size <= self.__physical_size // 4:
+            self.__physical_size = self.__physical_size // 2
+            new_elements = np.empty(self.__physical_size, dtype = self.__data_type)
+            new_elements[:self.__logical_size] = self.__elements[:self.__logical_size]
+            self.__elements = new_elements
 
     def __len__(self) -> int: 
-        raise NotImplementedError('Length not implemented.')
+        return self.__logical_size
 
     def __eq__(self, other: object) -> bool:
-        raise NotImplementedError('Equality not implemented.')
-    
+        if not isinstance(other, Array):
+            return False
+        
+        if self.__logical_size != other.__logical_size:
+            return False
+        
+        return np.array_equal(self.__elements[:self.__logical_size], other.__elements[:other.__logical_size])
+
     def __iter__(self) -> Iterator[T]:
-        raise NotImplementedError('Iteration not implemented.')
+        return iter(self.__elements[self.__logical_size])
 
     def __reversed__(self) -> Iterator[T]:
-        raise
+        reversed_elements = np.flip(self.__logical_size)
+        return iter(reversed_elements)
 
     def __delitem__(self, index: int) -> None:
-       raise NotImplementedError('Delete not implemented.')
+       if not 0 <= index < self.__logical_size:
+           raise IndexError
+       
+       self.__elements[index:self.__logical_size - 1] = self.__elements[index + 1:self.__logical_size]
+       self.__logical_size -= 1
+
+       if self.__logical_size > 0 and self.__logical_size <= self.__physical_size // 4:
+           self.__physical_size //=2
+           new_elements = np.empty(self.__physical_size, dtype=self.__data_type)
+           new_elements[:self.__logical_size] = self.__elements[:self.__logical_size]
+           self.__elements = new_elements
 
     def __contains__(self, item: Any) -> bool:
-        raise NotImplementedError('Contains not implemented.')
+        return np.any(self.__elements[:self.__logical_size] == item)
 
     def clear(self) -> None:
-        raise NotImplementedError('Clear not implemented.')
+        self.__logical_size = 0
+        self.__elements = np.empty(self.__physical_size, dtype = self.__data_type)
 
     def __str__(self) -> str:
-        return '[' + ', '.join(str(item) for item in self) + ']'
+        return f'[{", ".join(str(item) for item in self.__elements[:self.__logical_size])}]'
     
     def __repr__(self) -> str:
         return f'Array {self.__str__()}, Logical: {self.__item_count}, Physical: {len(self.__items)}, type: {self.__data_type}'
