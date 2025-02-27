@@ -1,29 +1,42 @@
 from __future__ import annotations
 import os
-from typing import Iterator, Sequence
+from typing import Iterator, List, Sequence
+import numpy as np
 
-from datastructures.iarray import IArray
-from datastructures.array import Array
-from datastructures.iarray2d import IArray2D, T
+from DataStructures.iarray import IArray
+from DataStructures.array import Array
+from DataStructures.iarray2d import IArray2D, T
 
 
 class Array2D(IArray2D[T]):
 
     class Row(IArray2D.IRow[T]):
         def __init__(self, row_index: int, array: IArray, num_columns: int) -> None:
-            raise NotImplementedError('Row.__init__ not implemented.')
+            self.row_index = row_index
+            self.array = array
+            self.num_columns = num_columns
+
+        def map_index(self, row_index: int, col_index) -> int:
+            return row_index * self.num_columns + col_index
 
         def __getitem__(self, column_index: int) -> T:
-            raise NotImplementedError('Row.__getitem__ not implemented.')
-        
+            if column_index < 0 or column_index >= self.num_columns:
+                raise IndexError
+            index: int = self.map_index(self.row_index, column_index)
+            return self.array[index]
+
         def __setitem__(self, column_index: int, value: T) -> None:
-            raise NotImplementedError('Row.__setitem__ not implemented.')
+            if column_index < 0 or column_index >= self.num_columns:
+                raise IndexError
+            index: int = self.map_index(self.row_index, column_index)
+            self.array[index] = value
         
         def __iter__(self) -> Iterator[T]:
-            raise NotImplementedError('Row.__iter__ not implemented.')
-        
+            for col in range(self.num_columns):
+                yield self[col]
         def __reversed__(self) -> Iterator[T]:
-            raise NotImplementedError('Row.__reversed__ not implemented.')
+            for col in range(self.num_columns -1, -1, -1):
+                yield self[col]
 
         def __len__(self) -> int:
             return self.num_columns
@@ -36,30 +49,46 @@ class Array2D(IArray2D[T]):
 
 
     def __init__(self, starting_sequence: Sequence[Sequence[T]]=[[]], data_type=object) -> None:
-        raise NotImplementedError('Array2D.__init__ not implemented.')
+        self.data_type = data_type
+        
+        if not isinstance(starting_sequence) or not all(isinstance(row, Sequence) for row in starting_sequence):
+            raise ValueError
+        
+        self.rows_len = len(starting_sequence)
+        self.cols_len = len(starting_sequence[0] if self.rows_len > 0 else 0)
+
+        if any(len(row) != self.cols_len for row in starting_sequence):
+            raise ValueError
+        
+        py_list = [elem for row in starting_sequence for elem in row]
+        self.elements2d = Array(starting_sequence=py_list, data_type = data_type)
 
     @staticmethod
     def empty(rows: int=0, cols: int=0, data_type: type=object) -> Array2D:
-        raise NotImplementedError('Array2D.empty not implemented.')
+        pylist2d: List[List[T]] = [[data_type() for _ in range(cols)] for _ in range(rows)]
+        return Array2D(starting_sequence=pylist2d, data_type=data_type)
 
     def __getitem__(self, row_index: int) -> Array2D.IRow[T]: 
-        raise NotImplementedError('Array2D.__getitem__ not implemented.')
+        if row_index < 0 or row_index >= self.rows_len:
+            raise IndexError
+        return Array2D.Row(row_index, self.elements2d, self.cols_len)
     
     def __iter__(self) -> Iterator[Sequence[T]]: 
-        raise NotImplementedError('Array2D.__iter__ not implemented.')
-    
+        for row in range(self.rows_len):
+            yield self[row]
+
     def __reversed__(self):
-        raise NotImplementedError('Array2D.__reversed__ not implemented.')
-    
+        for row in range(self.rows_len -1, -1, -1):
+            yield self[row]
+
     def __len__(self): 
-        raise NotImplementedError('Array2D.__len__ not implemented')
+        return self.rows_len
                                   
     def __str__(self) -> str: 
         return f'[{", ".join(f"{str(row)}" for row in self)}]'
     
     def __repr__(self) -> str: 
-        return f'Array2D {self.__num_rows} Rows x {self.__num_columns} Columns, items: {str(self)}'
-
+        return f'[{Array2D(rows={self.rows_len}, cols ={self.cols_len})}]'
 
 if __name__ == '__main__':
     filename = os.path.basename(__file__)
