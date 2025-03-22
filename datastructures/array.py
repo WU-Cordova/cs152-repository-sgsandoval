@@ -13,7 +13,7 @@ import numpy as np
 
 
 
-from datastructures.iarray import IArray, T
+from DataStructures.iarray import IArray, T
 
 
 class Array(IArray[T]):  
