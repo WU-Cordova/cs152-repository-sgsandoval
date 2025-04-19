@@ -1,6 +1,6 @@
 import copy
 import pytest
-from datastructures.array import Array
+from DataStructures.array import Array
 
 from tests.car import Car, Color, Make, Model
 

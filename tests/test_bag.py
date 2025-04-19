@@ -1,6 +1,6 @@
 import pytest
 
-from datastructures.bag import Bag
+from DataStructures.bag import Bag
 
 
 @pytest.fixture
