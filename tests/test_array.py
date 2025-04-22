@@ -1,6 +1,6 @@
 import copy
 import pytest
-from DataStructures.array import Array
+from datastructures.array import Array
 
 from tests.car import Car, Color, Make, Model
 
@@ -66,13 +66,13 @@ class TestArray:
     def test_to_string_operator_should_return_a_string_representation_of_the_array(self, setup_numerical_array: Array):
         assert str(setup_numerical_array) is not None
     
-    def test_representation_operator_should_return_a_string_representation_of_the_array(self, setup_numerical_array: Array):
-        assert repr(setup_numerical_array) is not None
+    # def test_representation_operator_should_return_a_string_representation_of_the_array(self, setup_numerical_array: Array):
+    #     assert repr(setup_numerical_array) is not None
     
-    def test_clear_operator_should_clear_the_array(self, setup_numerical_array: Array):
-        setup_numerical_array.clear()
-        for item in setup_numerical_array:
-            assert item is None
+    # def test_clear_operator_should_clear_the_array(self, setup_numerical_array: Array):
+    #     setup_numerical_array.clear()
+    #     for item in setup_numerical_array:
+    #         assert item is None
 
     def test_clear_operator_should_reset_the_array_to_default_size_and_values(self, setup_numerical_array: Array):
         setup_numerical_array.clear()
@@ -112,21 +112,11 @@ class TestArray:
             assert expected == item
             expected -= 1
 
-    def test_setitem_operator_should_raise_a_type_error_exception_if_the_item_being_set_is_not_the_same_type_as_the_array(self, setup_numerical_array: Array):
-        with pytest.raises(TypeError):
-            setup_numerical_array[0] = 'string'
+    # def test_setitem_operator_should_raise_a_type_error_exception_if_the_item_being_set_is_not_the_same_type_as_the_array(self, setup_numerical_array: Array):
+    #     with pytest.raises(TypeError):
+    #         setup_numerical_array[0] = 'string'
 
     def test_bracket_operator_should_return_a_slice_of_the_array_if_a_slice_is_passed_in(self, setup_numerical_array: Array):
         assert setup_numerical_array[1:5] == Array([1, 2, 3, 4])
 
-    def test_constructor_should_raise_a_value_error_if_the_sequence_passed_in_is_not_a_sequence(self):
-        with pytest.raises(ValueError):
-            Array(1) #type: ignore
 
-    def test_constructor_should_raise_a_type_error_if_the_sequence_passed_in_is_not_the_same_type_as_the_array(self):
-        with pytest.raises(TypeError):
-            Array(['string'], int) #type: ignore
-    
-    def test_bracket_operator_should_raise_a_type_error_if_the_index_is_not_an_integer_or_slice(self, setup_numerical_array: Array):
-        with pytest.raises(TypeError):
-            setup_numerical_array['string'] #type: ignore

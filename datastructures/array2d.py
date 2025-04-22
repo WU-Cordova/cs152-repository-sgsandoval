@@ -3,9 +3,9 @@ import os
 from typing import Iterator, List, Sequence
 import numpy as np
 
-from DataStructures.iarray import IArray
-from DataStructures.array import Array
-from DataStructures.iarray2d import IArray2D, T
+from datastructures.iarray import IArray
+from datastructures.array import Array
+from datastructures.iarray2d import IArray2D, T
 
 
 class Array2D(IArray2D[T]):

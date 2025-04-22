@@ -1,7 +1,7 @@
 import os
 
-from DataStructures.array import Array, T
-from DataStructures.istack import IStack
+from datastructures.array import Array, T
+from datastructures.istack import IStack
 
 class ArrayStack(IStack[T]):
     ''' ArrayStack class that implements the IStack interface. The ArrayStack is a 

@@ -1,5 +1,5 @@
 from typing import Iterable, Optional, TypeVar
-from DataStructures.ibag import IBag, T
+from datastructures.ibag import IBag, T
 from collections import defaultdict
 
 T = TypeVar("T")

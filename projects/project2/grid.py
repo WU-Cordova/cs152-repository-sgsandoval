@@ -2,7 +2,7 @@
 
 from typing import List
 from cell import Cell
-from DataStructures.array2d import Array2D
+from datastructures.array2d import Array2D
 
 class Grid:
     def __init__(self, rows: int, cols: int):

@@ -1,6 +1,6 @@
 import os
-from DataStructures.iqueue import IQueue
-from DataStructures.linkedlist import LinkedList
+from datastructures.iqueue import IQueue
+from datastructures.linkedlist import LinkedList
 from typing import TypeVar
 
 T = TypeVar('T')

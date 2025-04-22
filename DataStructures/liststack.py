@@ -1,8 +1,8 @@
 import os
-from DataStructures.istack import IStack
+from datastructures.istack import IStack
 from typing import Generic
 
-from DataStructures.linkedlist import LinkedList, T
+from datastructures.linkedlist import LinkedList, T
 
 class ListStack(IStack[T]):
     """

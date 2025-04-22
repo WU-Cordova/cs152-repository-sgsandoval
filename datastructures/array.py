@@ -7,13 +7,14 @@
 
 from __future__ import annotations
 from collections.abc import Sequence
+import copy
 import os
 from typing import Any, Iterator, overload
 import numpy as np
 
 
 
-from DataStructures.iarray import IArray, T
+from datastructures.iarray import IArray, T
 
 
 class Array(IArray[T]):  
@@ -26,7 +27,7 @@ class Array(IArray[T]):
         self.__elements = np.empty(self.__logical_size, dtype=self.__data_type)
 
         for index in range(self.__logical_size):
-            self.__elements[index] = np.copy.deepcopy(starting_sequence)
+            self.__elements[index] = copy.deepcopy(starting_sequence[index])
 
         if not isinstance(starting_sequence, Sequence):
             raise ValueError('starting_sequence must be a valid sequence type')
@@ -51,7 +52,7 @@ class Array(IArray[T]):
                 stop = slice.stop
                 step = slice.step
 
-                return Array(starting_sequence=self.__elements[index])
+                return Array(starting_sequence=self.__elements[index].tolist())
             
             elif isinstance(index, int):
 
@@ -122,10 +123,10 @@ class Array(IArray[T]):
         return np.array_equal(self.__elements[:self.__logical_size], other.__elements[:other.__logical_size])
 
     def __iter__(self) -> Iterator[T]:
-        return iter(self.__elements[self.__logical_size])
+        return iter(self.__elements)
 
     def __reversed__(self) -> Iterator[T]:
-        reversed_elements = np.flip(self.__logical_size)
+        reversed_elements = np.flip(self.__elements)
         return iter(reversed_elements)
 
     def __delitem__(self, index: int) -> None:
@@ -152,7 +153,7 @@ class Array(IArray[T]):
         return f'[{", ".join(str(item) for item in self.__elements[:self.__logical_size])}]'
     
     def __repr__(self) -> str:
-        return f'Array {self.__str__()}, Logical: {self.__item_count}, Physical: {len(self.__items)}, type: {self.__data_type}'
+        return f'Array {self.__str__()}, Logical: {self.__logical_size}, Physical: {len(self.__items)}, type: {self.__data_type}'
     
 
 if __name__ == '__main__':

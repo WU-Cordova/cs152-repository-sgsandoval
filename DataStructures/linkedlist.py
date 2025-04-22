@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from typing import Optional, Sequence
-from DataStructures.ilinkedlist import ILinkedList, T
+from datastructures.ilinkedlist import ILinkedList, T
 
 
 class LinkedList[T](ILinkedList[T]):

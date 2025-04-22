@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Iterator, TypeVar
 
-from DataStructures.iarray import IArray
+from datastructures.iarray import IArray
 
 T = TypeVar('T', bound=Any)
 

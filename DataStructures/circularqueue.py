@@ -1,6 +1,6 @@
 from typing import Any
 
-from DataStructures.iqueue import IQueue, T
+from datastructures.iqueue import IQueue, T
 
 class CircularQueue(IQueue[T]):
     """ Represents a fixed-size circular queue. The queue

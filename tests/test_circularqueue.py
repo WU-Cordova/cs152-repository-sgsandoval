@@ -1,5 +1,5 @@
 import pytest
-from DataStructures.circularqueue import CircularQueue
+from datastructures.circularqueue import CircularQueue
 
 @pytest.fixture
 def empty_queue():

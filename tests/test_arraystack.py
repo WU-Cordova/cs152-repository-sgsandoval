@@ -1,6 +1,6 @@
 import pytest
 
-from DataStructures.arraystack import ArrayStack
+from datastructures.arraystack import ArrayStack
 
 
 @pytest.fixture

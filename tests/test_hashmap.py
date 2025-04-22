@@ -1,4 +1,4 @@
-from DataStructures.hashmap import HashMap
+from datastructures.hashmap import HashMap
 import pytest
 
 class TestHashMap:

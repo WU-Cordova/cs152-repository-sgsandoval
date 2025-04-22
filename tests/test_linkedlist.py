@@ -1,7 +1,7 @@
 import pytest
 
-from DataStructures.ilinkedlist import ILinkedList
-from DataStructures.linkedlist import LinkedList
+from datastructures.ilinkedlist import ILinkedList
+from datastructures.linkedlist import LinkedList
 
 class TestLinkedList:
 

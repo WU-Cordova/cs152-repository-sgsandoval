@@ -1,6 +1,6 @@
 import pytest
 
-from DataStructures.array2d import Array2D
+from datastructures.array2d import Array2D
 
 class TestArray2D:
     
