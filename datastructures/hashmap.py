@@ -10,65 +10,99 @@ from datastructures.linkedlist import LinkedList
 class HashMap(IHashMap[KT, VT]):
 
     def __init__(self, number_of_buckets=7, load_factor=0.75, custom_hash_function: Optional[Callable[[KT], int]]=None) -> None:
-        self._buckets: Array[LinkedList[Tuple[KT, VT]]]
-        self._count: int
-        self._load_factor_threshold: float
+        self._buckets: Array[LinkedList[Tuple[KT, VT]]] = Array(number_of_buckets)
+        for i in range(number_of_buckets):
+            self._buckets[i] = LinkedList()
+        self._count: int = 0
+        self._load_factor_threshold: float = load_factor
+        self._hash_function = custom_hash_function or self._default_hash_function
 
     def _get_bucket_index(self, key: KT, bucket_size: int) -> int:
-        bucket_index = self._buckets
-        return bucket_index % bucket_size
+        return self._hash_function(key) % bucket_size
 
     def __getitem__(self, key: KT) -> VT:
-        for (k, v) in self._buckets[self._get_bucket_index(key, len(self._buckets))]:
+        bucket_index = self._get_bucket_index(key, len(self._buckets))
+        for k, v in self._buckets[bucket_index]:
             if k == key:
                 return v
         raise KeyError
 
     def __setitem__(self, key: KT, value: VT) -> None:        
-        raise NotImplementedError("HashMap.__setitem__() is not implemented yet.")
+        if self._count / len(self._buckets) >= self._load_factor_threshold:
+            self._resize()
+        bucket_index = self._get_bucket_index(key, len(self._buckets))
+        bucket = self._buckets[bucket_index]
+        for i, (k, v) in enumerate(bucket):
+            if k == key:
+                bucket[i] = (key, value)
+                return
+        bucket.append((key, value))
+        self._count += 1
+
+    def _resize(self) -> None:
+        old_buckets = self._buckets
+        new_capacity = len(old_buckets) * 2
+        self._buckets = Array(new_capacity)
+        for i in range(new_capacity):
+            self._buckets[i] = LinkedList()
+        old_count = self._count
+        self._count = 0
+        for bucket in old_buckets:
+            for k, v in bucket:
+                self[k] = v
+        assert self._count == old_count
 
     def keys(self) -> Iterator[KT]:
-        raise
+        for bucket in self._buckets:
+            for k, _ in bucket:
+                yield k
     
     def values(self) -> Iterator[VT]:
-        raise NotImplementedError("HashMap.values() is not implemented yet.")
+        for bucket in self._buckets:
+            for _, v in bucket:
+                yield v
 
     def items(self) -> Iterator[Tuple[KT, VT]]:
-        raise NotImplementedError("HashMap.items() is not implemented yet.")
+        for bucket in self._buckets:
+            for pair in bucket:
+                yield pair
             
     def __delitem__(self, key: KT) -> None:
-        raise NotImplementedError("HashMap.__delitem__() is not implemented yet.")
+        bucket_index = self._get_bucket_index(key, len(self._buckets))
+        bucket = self._buckets[bucket_index]
+        for i, (k, _) in enumerate(bucket):
+            if k == key:
+                del bucket[i]
+                self._count -= 1
+                return
+        raise KeyError
     
     def __contains__(self, key: KT) -> bool:
-        bucket_index: int = self._get_bucket_index(key, len(self._buckets))
-        bucket_chain: LinkedList = self._buckets[bucket_index]
-        for (k, v) in bucket_chain:
+        bucket_index = self._get_bucket_index(key, len(self._buckets))
+        for k, _ in self._buckets[bucket_index]:
             if k == key:
                 return True
         return False
+
 
     def __len__(self) -> int:
         return self._count
     
     def __iter__(self) -> Iterator[KT]:
-        raise NotImplementedError("HashMap.__iter__() is not implemented yet.")
+        return self.keys()
     
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, HashMap):
             return False
         if len(self) != len(other):
             return False
-        current_self = self._buckets.head
-        current_other = other._buckets.head
-        while current_self and current_other:
-            if current_self.data != current_other.data:
+        for key, value in self.items():
+            if key not in other or other[key] != value:
                 return False
-            current_self = current_self.next
-            current_other = current_other.next
         return True
 
     def __str__(self) -> str:
-        return "{" + ", ".join(f"{key}: {value}" for key, value in self) + "}"
+        return "{" + ", ".join(f"{key}: {value}" for key, value in self.items()) + "}"
     
     def __repr__(self) -> str:
         return f"HashMap({str(self)})"

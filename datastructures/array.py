@@ -19,46 +19,36 @@ from datastructures.iarray import IArray, T
 
 class Array(IArray[T]):  
 
-    def __init__(self, starting_sequence: Sequence[T]=[], data_type: type=object) -> None: 
-        self.__logical_size = len(starting_sequence)
-        self.__physical_size = self.__logical_size
-        self.__data_type: type = data_type
+    def __init__(self, starting_sequence: Sequence[T] | int = [], data_type: type = object) -> None:
+        if isinstance(starting_sequence, int):
+            self.__logical_size = 0
+            self.__physical_size = starting_sequence
+            self.__data_type = data_type
+            self.__elements = np.empty(self.__physical_size, dtype=self.__data_type)
+        elif isinstance(starting_sequence, Sequence):
+            self.__logical_size = len(starting_sequence)
+            self.__physical_size = self.__logical_size
+            self.__data_type = data_type
+            self.__elements = np.empty(self.__logical_size, dtype=self.__data_type)
+            for i in range(self.__logical_size):
+                self.__elements[i] = copy.deepcopy(starting_sequence[i])
+        else:
+            raise ValueError("starting_sequence must be a valid sequence or integer")
 
-        self.__elements = np.empty(self.__logical_size, dtype=self.__data_type)
-
-        for index in range(self.__logical_size):
-            self.__elements[index] = copy.deepcopy(starting_sequence[index])
-
-        if not isinstance(starting_sequence, Sequence):
-            raise ValueError('starting_sequence must be a valid sequence type')
-        
-        for index in range(self.__logical_size):
-            if not isinstance(starting_sequence[index], self.__data_type):
-                raise TypeError('Items in starting sequence are not all the same type')
-
-        self.__items: np.NDArray = np.empty(self.__logical_size, dtype=self.__data_type)
-
-        for index in range(self.__logical_size):
-            self.__items[index] = starting_sequence[index]
 
     @overload
     def __getitem__(self, index: int) -> T: ...
     @overload
     def __getitem__(self, index: slice) -> Sequence[T]: ...
     def __getitem__(self, index: int | slice) -> T | Sequence[T]:
-            
-            if isinstance(index, slice):
-                start = slice.start
-                stop = slice.stop
-                step = slice.step
-
-                return Array(starting_sequence=self.__elements[index].tolist())
-            
-            elif isinstance(index, int):
-
-                return self.__elements[index]
-            
+        if isinstance(index, slice):
+            return Array(starting_sequence=self.__elements[index].tolist())
+        elif isinstance(index, int):
+            if index < 0 or index >= self.__logical_size:
+                raise IndexError("Index out of bounds")
             return self.__elements[index]
+        raise TypeError("Invalid argument type")
+
     
     def __setitem__(self, index: int, item: T) -> None:
         self.__elements[index] = item
@@ -123,7 +113,7 @@ class Array(IArray[T]):
         return np.array_equal(self.__elements[:self.__logical_size], other.__elements[:other.__logical_size])
 
     def __iter__(self) -> Iterator[T]:
-        return iter(self.__elements)
+        return iter(self.__elements[:self.__logical_size])
 
     def __reversed__(self) -> Iterator[T]:
         reversed_elements = np.flip(self.__elements)
