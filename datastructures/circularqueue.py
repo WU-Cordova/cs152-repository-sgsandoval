@@ -85,7 +85,7 @@ class CircularQueue(IQueue[T]):
         item = self._queue[self._front_index]
         self._queue[self._front_index] = None
         self._front_index = (self._front_index + 1) % self._maxsize
-        self.count -= 1
+        self._count -= 1
         return item
 
     def clear(self) -> None:

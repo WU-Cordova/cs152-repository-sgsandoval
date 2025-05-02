@@ -57,7 +57,7 @@ class LinkedList[T](ILinkedList[T]):
         current = self.head
         while current:
             if current.data == target:
-                new_node = self.Node(data=type)
+                new_node = self.Node(data=item)
                 new_node.next = current
                 new_node.previous = current.previous
                 if current.previous:
