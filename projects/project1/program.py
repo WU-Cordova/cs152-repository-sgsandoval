@@ -1,10 +1,9 @@
-
+from projects.project1.card import Game
 
 def main():
-    
-    print("Hello, World!")
-
-
+    game = Game()
+    game.play()
 
 if __name__ == '__main__':
     main()
+    
