@@ -133,5 +133,3 @@ class BistroSystem:
             count, total = data
             print(f"{name}: {count} sold - ${total:.2f}")
         print(f"Total Revenue: ${total_revenue:.2f}")
-
-    pass
